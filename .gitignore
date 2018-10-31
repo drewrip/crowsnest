@@ -1,4 +1,5 @@
 paper/*.log
 paper/*.aux
-paper/main.pdf
 paper/*synctex.gz
+paper/*.bbl
+paper/*.blg
