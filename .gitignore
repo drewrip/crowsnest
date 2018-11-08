@@ -1,5 +1,5 @@
-paper/*.log
-paper/*.aux
-paper/*synctex.gz
-paper/*.bbl
-paper/*.blg
+paper/*
+!paper/*.pdf
+!paper/*.tex
+!paper/*.bib
+!paper/makefile
