@@ -1,3 +1,16 @@
 \section{Introduction}
 
-The Raft consensus algorithm originated to simplify the preexisting Paxos algorithm, while solving the same core problem \cite{OngaroRaft} with the same efficiency. For years, Paxos had dominated distributed consensus. At its core it defined a way in which a system could come to agreement on a given state \cite{LamportPPT}. Though, Paxos can be incredibly hard to comprehend. Many papers have been published in an attempt to offer a clearer explanation as to how Paxos functions \cite{LamportSimple, MazieresPractical}, but it continues to be a difficult system to implement at a practical level.
+The Raft consensus algorithm originated to simplify the 
+preexisting Paxos algorithm, while at the same time, 
+solving the same core problem \cite{OngaroRaft} with a 
+similar efficiency. For years, Paxos had dominated 
+distributed consensus. At its core it defined a way in 
+which a system could come to agreement on a given state 
+\cite{LamportPPT}. Though, Paxos can be incredibly hard 
+to comprehend. Many papers have been published in an 
+attempt to offer a clearer explanation as to how Paxos 
+functions \cite{LamportSimple, MazieresPractical}, but it 
+continues to be a difficult system to implement at a 
+practical level.
+
+Ultimately, these algorithms define a method for a system to agree on a state \cite{BrandFSM}. They work to build a fault tolerant approach to distributed systems, the \textit{replicated state machine} \cite{SchneiderFSM}. In this context, a group of machines replicate a single state across themselves to create a fault tolerant system, that can handle the failure of a given node.
