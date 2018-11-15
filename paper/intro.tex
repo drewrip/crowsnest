@@ -13,4 +13,20 @@ functions \cite{LamportSimple, MazieresPractical}, but it
 continues to be a difficult system to implement at a 
 practical level.
 
-Ultimately, these algorithms define a method for a system to agree on a state \cite{BrandFSM}. They work to build a fault tolerant approach to distributed systems, the \textit{replicated state machine} \cite{SchneiderFSM}. In this context, a group of machines replicate a single state across themselves to create a fault tolerant system, that can handle the failure of a given node.
+Ultimately, these algorithms define a method for a system to agree on a state \cite{BrandFSM}. They work to build a fault tolerant approach to distributed systems, the \textit{replicated state machine} \cite{SchneiderFSM}. In this context, a group of machines replicate a single state across themselves to create a fault tolerant system, that can handle the failure of $n/2 - 1$ nodes. The essential goal of consensus in terms of the \textit{replicated state machine} is to reach a \textit{univalent} state, from any \textit{multivalent} state. Such algorithms specifically order state changes, to ensure that when applied, that all result in the same state \cite{OngaroRaft, LamportTime}. Raft also works to correct, and right, any nodes in a cluster in contradicting states. It does this via counting \texttt{election terms}, demonstrated as such:
+\\
+\\
+We define two nodes in a cluster, with two corresponding state machines, $M$ and $N$. We also define a function, $T(S)$, of some arbitrary state machine $S$, that is its current \texttt{term}.
+\\
+\\
+$$
+\text{Correct State} =
+\begin{cases}
+T(M) > T(N), & M\\
+T(M) < T(N), & N
+\end{cases}
+$$
+\\
+\\
+In order to keep some sense of order in the cluster, Raft keeps track of the number of leader elections that have occured with the \texttt{election term}. This is a system wide tally that is used to determine when a node may be behind or have conflicting information in its log.
+Many of these comparisons have to be made from node to node through heartbeat messages, that also act to check for leader liveness \cite{OngaroRaft}. But, as one might imagine, as you try to include more nodes in a cluster, the number of checks that have to be propogated to ensure an effective system drastically increases.
