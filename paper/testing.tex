@@ -1,0 +1,7 @@
+\section{Testing Consensus}
+
+	The big draw of Raft is its practicallity. It has allowed many the opportunity to implement distributed consensus, as it was designed to be understandable. So with this is mind, we maintain a similar dogma when it comes to testing the algorithms scalability. We wanted to design a test that would accomplish two main goals: \textit{(1)} stress test the network, its throughput, and its ability to maintain consensus; \textit{(2)} realistically represent an application or use case that Raft might see in a real world system.
+
+	With these considerations, we first decided the most common use case for this method of distributed consensus. The official Raft website contains a useful list of implementations \cite{RaftSite}. Given its capabilities, Raft is very commonly used for database replication \cite{etcd, CockroachDB, TiKV, RethinkDB}, so we decided to have our \textit{replicated state machine} be small key-value store, essentially a replicated mapping.
+
+	We elected to use a popular open source library written in Go, \texttt{hashicorp/raft} \cite{HashicorpRaft}.
