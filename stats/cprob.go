@@ -9,18 +9,18 @@ import (
 )
 
 const (
-	LIVERATE = 0.6
+	LIVERATE = 0.75
 )
 func main(){
 	var uppernodes int
-	flag.IntVar(&uppernodes, "u", 50, "Sets the upper limit of nodes to compute")
+	flag.IntVar(&uppernodes, "u", 51, "Sets the upper limit of nodes to compute, it is recommended you chose an odd number. MIN=3")
 	flag.Parse()
 	f, err := os.Create("cprob.dat")
 	if err != nil{
 		log.Fatal("Problem creating data file")
 	}
     
-	for i := 1; i <= uppernodes; i++{
+	for i := 3; i <= uppernodes; i+=2{
 		binom, err := prob.NewBinomial(float64(i), LIVERATE)
 		if err != nil{
 			log.Fatal("Bad binomial")
