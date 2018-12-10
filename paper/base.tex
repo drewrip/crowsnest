@@ -1,3 +1,8 @@
 \section{Base Performance}
 
 Of course before we look into some potentially beneficial alterations we could make to Raft, we must examine the base algorithms ability to scale.
+
+\[L(n) = 1- \sum_{i=0}^{n/2-1} {n \choose i}(0.75)^{i}(0.25)^{n-i}\]
+
+
+\[\{(n, p): n \in \{3,5,7,...,51\}, p=L(n)\}\]
