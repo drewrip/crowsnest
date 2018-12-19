@@ -2,45 +2,67 @@ package main
 
 import (
 	"os/exec"
+	"os"
 	"log"
-	"strings"
-	"time"
 	"fmt"
+	"time"
 )
 
 const (
 	DINGHY_BIN = "dinghy1.1"
 )
+
+type Node struct {
+	Process *os.Process
+	HTTPPort int
+	RaftPort int
+}
+
 func main(){
-	fmt.Println(startCluster(5))
-}
-func getNodes()([]string){
-	out, err := exec.Command("pgrep", DINGHY_BIN).Output()
-	if err != nil {
-        log.Fatal(err)
-    }
-    pout := strings.TrimSuffix(string(out), "\n")
-    nodepids := strings.Split(pout, "\n")
-    return nodepids
+	cluster:=StartCluster(5)
+	time.Sleep(2 * time.Second)
+	cluster[0].Kill()
+	time.Sleep(10 * time.Second)
 }
 
-func down(pid string){
-	exec.Command("kill", pid).Output()
-}
-
-func startCluster(size int)([]int){
-	pids := make([]int,0)
-	initcmd := exec.Command("./"+DINGHY_BIN, "-r", "7000", "-h", "8000", "--bootstrap")
-	initcmd.Start()
-	pids = append(pids, initcmd.Process.Pid)
-	time.Sleep(1 * time.Second)
-	for i:=1; i<size-1; i++{
-		cmd := exec.Command("./"+DINGHY_BIN, "-r", string(7000+i), "-h", string(8000+i), "--join=127.0.0.1:8000")
-		cmd.Start()
-		pids = append(pids, cmd.Process.Pid)
+func Start(args ...string) (p *os.Process, err error) {
+	if args[0], err = exec.LookPath(args[0]); err == nil {
+		var procAttr os.ProcAttr
+		procAttr.Files = []*os.File{os.Stdin,
+			os.Stdout, os.Stderr}
+		p, err := os.StartProcess(args[0], args, &procAttr)
+		if err == nil {
+			return p, nil
+		}
 	}
-	lastcmd := exec.Command("./"+DINGHY_BIN, "-r", string(7000+(size-1)), "-h", string(8000+(size-1)), "--join=127.0.0.1:8000")
-	lastcmd.Start()
-	pids = append(pids, lastcmd.Process.Pid)
-	return pids
+	return nil, err
+}
+
+// Returns references to node processes
+func StartCluster(n int)([]Node){
+	pcs := make([]Node, 0)
+	pi, err := Start("./"+DINGHY_BIN, "-h8000", "-r7000", "--bootstrap")
+	if err != nil{
+			log.Fatal(err)
+	}
+	go pi.Wait()
+	pcs = append(pcs, Node{Process: pi, HTTPPort: 8000, RaftPort: 70002})
+	time.Sleep(2 * time.Second)
+	for i:=1; i<n; i++{
+		harg:=fmt.Sprintf("-h%d", 8000+i)
+		parg:=fmt.Sprintf("-r%d", 7000+i)
+		p, err := Start("./"+DINGHY_BIN, harg, parg, "--join=127.0.0.1:8000")
+		if err != nil{
+			log.Fatal(err)
+		}
+		go p.Wait()
+		pcs = append(pcs, Node{Process: p, HTTPPort: 8000+i, RaftPort: 7000+i})
+		time.Sleep(500 * time.Millisecond)
+	}
+	return pcs
+}
+
+func (n *Node)Kill()(error){
+	err := n.Process.Kill()
+	return err
 }
