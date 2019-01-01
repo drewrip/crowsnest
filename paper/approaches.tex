@@ -1,5 +1,12 @@
-\section{Approaches To Scaling Raft}
+\section{Scaling Raft With Dynamic Timeouts}
 
 Now we begin to look at some of the possible methods to scale the Raft consensus algorithm, each with varying degree of complexity and success.
 
-\subsection{Dynamic Timeouts}
+\subsection{Non-Voting Servers}
+
+One common way of increasing the capabilities of a large Raft cluster, is to change the voting status of additonal nodes.
+Usually when we discuss creating larger clusters, we mean creating a cluster of servers, each with full voting priveleges.
+But every one of these members all having full voting power, requires extra considerations in the cluster.
+When you are a \textit{full} node, you must participate in log replication, as well as be consulted when changes need to be made to the replicated log.
+So a common solution to this requirement for being a \textit{full} voting server, is making some of the members \textit{non-voting} servers.
+This allows for the node to participate in the cluster, gaining the benefits of the log replication, but not bogging down the cluster by increasing the quorum size.
