@@ -30,12 +30,12 @@ func main(){
 	lastCh:=cl.GetNode(1).ContactCh()
 	lasttime:=time.Now()
 
-	for i:=0; i<500; i++{
+	for i:=0; i<5000; i++{
 		select{
 			case y:=<-lastCh:
 				el:=time.Since(lasttime)
 				lasttime=time.Now()
-				data = append(data, int64(el))
+				data = append(data, int64(el/time.Millisecond))
 				color.Green("node%d: Contact %d = %v\n", 1, i, y)
 		}
 	}
