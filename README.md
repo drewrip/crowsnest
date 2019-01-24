@@ -2,16 +2,9 @@
 
 #### _Abstract_
 
-The increasing use of distributed systems in recent years brings about the need for more robust and scalable methods in which to reach consensus in a system. With the introduction of Raft, distributed consensus has become more widely available in used in the design of clusters, in many different scenarios. Though, as these clusters begin to increase in node size, they become increasingly less efficient at coming to consensus. We investigate ways to increase network throughput, nad propose methods to more effectively handle a growing number of nodes in a cluster, analyzing their effectiveness in a practical and realistic scenario.
+With the introduction of Raft, distributed consensus has become more widely available in the use of cluster design. Different applications of distributed systems often require differing configurations, however, as these clusters begin to increase in the number of participating nodes, they become increasingly less efficient at coming to consensus. Current methods of scaling distributed systems generally implement some variation of data sharding, batch processing, or message coalescing. We investigate however, utilizing dynamically set timeouts and heartbeat intervals to increase network throughput, and propose methods to more effectively handle a growing number of nodes in a cluster, while analyzing their ability to increase the horizontal scalability of a Raft cluster. 
 
  
  
- 
- 
- 
- 
- 
- 
- 
- 
+
 [See the paper here](paper/main.pdf)
