@@ -6,9 +6,25 @@ We can imagine a large party of friends trying to decide where they want to go t
 
 In this large party, many more people will have to be consulted, and more options will have to be weighed before a choice is made. Though, compare this to just a few friends, who would be able to reach mutual agreement much faster, as they have less to consider, and fewer people that need to be taken into account before reaching a decision.
 
-This principle is clearly demonstrated in distributed systems \cite{NeumanScaling}. Adding more nodes to a cluster makes it more difficult for the network to handle faults and replicate its state. Demonstrated in Raft, the more \textit{followers} in a system, the more heartbeats that have to be sent out by the \textit{leader}, processed, responded to, and then confirmed \cite{OngaroRaft}.
+This principle is clearly demonstrated in distributed systems \cite{NeumanScaling}. Adding more nodes to a cluster makes it more difficult for the network to handle faults and replicate its state. Demonstrated in Raft, the more \textit{followers} in a system, the more heartbeats that have to be sent out to the \textit{leader}, processed, responded to, and then confirmed \cite{OngaroRaft}. This will be demonstrated realistically later.
 
 
-\subsection{Applications in Raft}
+Now we begin to look at some of the possible methods to scale distributed systems, each with varying degree of complexity and success.
 
-Like all other algorithms of its class, Raft has similar problems scaling. Though it has a distrinctly unique set of problems. It should be noted that we can consider Raft generally \textit{synchronous}. That is all nodes must reach a \textit{univalent} state, before handling the replication of the next update to the log. Raft's use of a \textit{leader}, requires all changes to the network state be processed through a single node, thereby essentially creating a synchronous cluster where in which \textit{followers} have very little power to influence the cluster's state where there is a healthy \textit{leader}. So when we discuss scaling in terms of a leader based methods we have to examine different properities of the algorithm.
+\subsection{Non-Voting Servers}
+
+One common way of increasing the capabilities of a large Raft cluster, is to change the voting status of additonal nodes.
+Usually when we discuss creating larger clusters, we mean creating a cluster of servers, each with full voting priveleges.
+But every one of these members all having full voting power, requires extra considerations in the cluster.
+When you are a \textit{full} node, you must participate in log replication, as well as be consulted when changes need to be made to the replicated log.
+So a common solution to this requirement for being a \textit{full} voting server, is making some of the members \textit{non-voting} servers.
+This allows for the node to participate in the cluster, gaining the benefits of the log replication, but not bogging down the cluster by increasing the quorum size \cite{NonVoting}. 
+Though it should be noted that this solution does not in any way solve the presented problem. Demoting nodes to a non-voting configuration, does not assist with the fault tolerance of the cluster. Supose you spin up a cluster with 5 full Raft servers, and 100 non-voting servers. If even just 3 of the full nodes fail, the system can no longer make progress, even though we have allocated resources for running a total of 105 servers because, the majority of the voting nodes have failed.
+
+\subsection{Sharding}
+
+There is also a way of scaling writes and reads. Some databases divide up the data their are trying to replicate using a process called \textit{sharding}. A great example of this process can be found in Google's Spanner database\cite{Spanner}. \textit{Sharding} works as a type of distributed load balances to balance the store of data across many consensus groups.
+
+\subsection{Batching}
+
+Other databases work to alter the process of sending or receiving inter-node messages. The Calvin database works to group messages, and specially schedule them in order to maintain consistency, and scalability \cite{Calvin}.
