@@ -1,31 +1,11 @@
 \section{Testing Consensus}
 
-	The big draw of Raft is its practicallity. It has allowed many the opportunity to implement distributed consensus, as it was designed to be understandable. So with this is mind, we maintain a similar dogma when it comes to testing the algorithms scalability. We wanted to design a test that would accomplish two main goals: \textit{(1)} stress test the network, its throughput, and its ability to maintain consensus; \textit{(2)} realistically represent an application or use case that Raft might see in a real world system.
+	The big draw of Raft is its practicallity. It has allowed many the opportunity to implement distributed consensus, as it was designed to be understandable. So with this is mind, we maintain a similar dogma when it comes to testing the algorithms scalability. We wanted to design a test that would stress test the networks throughput given a certain size, given that Raft is overwhelmingly used in creating fault tolerant databases \cite{etcd, CockroachDB, TiKV, RethinkDB}.
 
-	With these considerations, we first decided the most common use case for this method of distributed consensus. The official Raft website contains a useful list of implementations \cite{RaftSite}. Given its capabilities, Raft is very commonly used for database replication \cite{etcd, CockroachDB, TiKV, RethinkDB}, so we decided to have our \textit{replicated state machine} be small key-value store, essentially a replicated mapping.
+	With these considerations, we first decided the most common use case for this method of distributed consensus. The official Raft website contains a useful list of implementations \cite{RaftSite}. Given its capabilities, Raft is overwhelmingly used for database replication , 
+	We elected to use a popular open source library written in Go, \texttt{hashicorp/raft} \cite{HashicorpRaft}. With this, we used an integer state in our cluster's state machine. We define the function $S(R)$, that is the current state of some arbitrary Raft node, $R$.
 
-	We elected to use a popular open source library written in Go, \texttt{hashicorp/raft} \cite{HashicorpRaft}. Then we wrote a simple key value store \textit{replicated state machine}, into a barebones example for greater efficiency \cite{Dinghy}. We spun up a cluster of an increasing, odd, size, and run a stress test on the cluster. The key value store is initialized with 10,000 entries as shown:
-	\\
-	\\
-	\texttt{key1: 0}
-	\\
-	\texttt{key2: 0}
-	\\
-	...
-	\\
-	\texttt{key10000: 0}
-	\\
-	\\
-	Then after initializing the state machine, we start issuing requests to the network for a change in state. We go one by one, requesting a change, and a subsequent read in the value, of one key-value pair. After every 100 requests made to the network, we attempt to simulate node failures. Our script evaluates each node in the cluster. The script randomly decides whether or not said node should \textit{fail}. Independly, we give each node a 10\% chance of failure. This process of node failure in our testing we call \textit{Intentional Random Node Failure}. We then reconnect all failed nodes, after 1 request to the network has been made. By the end of one full routine, we have gone through a total of 100 \textit{Intentional Random Node Failures}, and have updated 10,000 values in our replicated key-value store such that:
-	\\
-	 \\
-	\texttt{key1: 1}
-	\\
-	\texttt{key2: 2}
-	\\
-	...
-	\\
-	\texttt{key10000: 10000}
-	\\
-	 \\
-	The metric we use to compare between tests is the time in which the this routine takes to complete. This should be fully evaluate Raft consensus via both throughput, and fault tolerance.
+	Our testing tracks the number of successful \texttt{Apply} operations we are able to make to the replicated state in some time. The time alloted for a single test is denoted as $T_{f}$. After every state update, a barrier is called in order to ensure all of the nodes are consistent. After $T_{f}/4$ the leader of the test cluster is killed. That is to say, it is non-gracefully shutdown, will stop returning messages, and will not return to be a functioning member of the cluster at any time during the test.
+	The replicated state machine is being incremented every update, such that, after $T_{f}$, given a set of Raft nodes $C$, \[\{r_{1},r_{2} \in C: S(r_{1})=S(r_{2})\}\] and the final number of applies, or commits for our test was the value of the final integer state of some arbitrary node in the cluster.
+
+	In this specific instance we elected for a shorter testing time of 5 seconds, then of course by our procedure, the leader would be killed after 1.25 seconds \cite{Dinghy}. We use this specific procedure in the testing of both our proposed algorithm, Dinghy, and the benchmarks of pure Raft.
