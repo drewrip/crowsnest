@@ -1,6 +1,10 @@
 #!/bin/bash
 
-for i in {1..100}
+#./benchmark -i -d "benchmark"
+for i in {1..5}
 do
-	./benchmark
+	for nn in {3..51..2}
+	do
+	./benchmark -n $nn -d "benchmark"
+	done
 done
