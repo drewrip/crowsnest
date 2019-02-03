@@ -6,8 +6,31 @@ We can imagine a large party of friends trying to decide where they want to go t
 
 In this large party, many more people will have to be consulted, and more options will have to be weighed before a choice is made. Though, compare this to just a few friends, who would be able to reach mutual agreement much faster, as they have less to consider, and fewer people that need to be taken into account before reaching a decision.
 
-This principle is clearly demonstrated in distributed systems \cite{NeumanScaling}. Adding more nodes to a cluster makes it more difficult for the network to handle faults and replicate its state. Demonstrated in Raft, the more \textit{followers} in a system, the more heartbeats that have to be sent out to the \textit{leader}, processed, responded to, and then confirmed \cite{OngaroRaft}. This will be demonstrated realistically later.
+This principle is clearly demonstrated in distributed systems \cite{NeumanScaling}. Adding more nodes to a cluster makes it more difficult for the network to handle faults and replicate its state. Demonstrated in Raft, the more \textit{followers} in a system, the more heartbeats that have to be sent out to the \textit{leader}, processed, responded to, and then confirmed \cite{OngaroRaft}.
 
+
+Though we can also demonstrate the benefits of a larger cluster. A greater number of nodes in a cluster allows for greater fault tolerance.
+If we say there is a 25\% chance that a node fails at some point, we can model the probability of a cluster reaching agreement as such:
+
+
+We define a function, $L(n)$, that is the probability a cluster of size $n$, can reach consensus given they have a 25\% of failing. Essentially equivalent to the common \textit{binomial cumulative density function}.
+
+\[L(n) = 1- \sum_{i=0}^{n/2-1} {n \choose i}(0.75)^{i}(0.25)^{n-i}\]
+
+With this function, we model the probability given each cluster size: 
+
+\[\{(n, p): n \in \{3,5,7,...,51\}, p=L(n)\}\]
+
+\vskip 0.25in
+
+Producing a distribution as such:
+
+\vskip 0.25in
+
+\includegraphics[width=0.5\textwidth]{cprob.pdf}
+
+
+With this distribution we can see the theoretical benefits of a greater horizontal size. When increasing the number of servers, we initially see a great jump in the probability that the cluster reaches consensus. While this probability does increase, the servers quickly hit a point, in this instance at a size of about 30 servers, where the there are no observable benefits to fault tolerance.
 
 Now we begin to look at some of the possible methods to scale distributed systems, each with varying degree of complexity and success.
 
