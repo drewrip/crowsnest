@@ -32,6 +32,20 @@ Producing a distribution as such:
 
 With this distribution we can see the theoretical benefits of a greater horizontal size. When increasing the number of servers, we initially see a great jump in the probability that the cluster reaches consensus. While this probability does increase, the servers quickly hit a point, in this instance at a size of about 30 servers, where the there are no observable benefits to fault tolerance.
 
+Also, as defined in David Ongaro's orginal thesis on Raft, we can theoretically calculate the probability of a cluster having a split vote \cite{RaftDissertation}. These split votes contribute massively to the problems that go along with horizontal scaling.
+
+We can simplify his orginal formula, and plug in some constants as such:
+
+\[\sum_{k=c-1}^{s} {s \choose k} l^{k}(1-l)^{s-k}\]
+
+
+\[\sum_{k=1}^{n} {n \choose k} .1^{k}(1-.1)^{n-k}\]
+
+In this scenario the there is a latency of 10ms, only 2 nodes are splitting the vote, and no nodes are down. We can visualize this for a cluster size of $n$ with the following:
+
+\includegraphics[width=0.45\textwidth]{elections.pdf}
+
+
 Now we begin to look at some of the possible methods to scale distributed systems, each with varying degree of complexity and success.
 
 \subsection{Non-Voting Servers}

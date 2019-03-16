@@ -2,12 +2,16 @@
 
 Like all other algorithms of its class, Raft has similar problems scaling. Though it has a distrinctly unique set of problems. It should be noted that we can consider Raft generally \textit{synchronous}. That is, all nodes must reach a \textit{univalent} state, before handling the replication of the next update to the log. Raft's use of a \textit{leader}, requires all changes to the network state be processed through a single node, thereby essentially creating a synchronous cluster where in which \textit{followers} have very little power to influence the cluster's state when there is a healthy \textit{leader}. So when we discuss scaling in terms of a leader based methods we have to examine different properities of the algorithm.
 
-Dinghy works as an embedded algorithm within Raft. It runs side by side the core Raft \textit{follower} routines, in order to actively maintain historical statistics on a node. In its most base form Dinghy attempts to get a sense of the environment that a given server is running in and adjust some of its previously set, static parameters, and adjust them to a more appropriate level for the situation. The Lifeguard system works in a similar fashion, but with differing goals, and approaches, using a step function to help stop false positives, whereas Dinghy looks at historical averages \cite{Lifeguard}.
+Dinghy works as an embedded algorithm within Raft. It runs side by side the core Raft \textit{follower} routines, in order to actively maintain historical statistics on a node. In its most base form Dinghy attempts to get a sense of the environment that a given server is running in and adjust some of its previously set, static parameters, and adjust them to a more appropriate level for the situation. The Lifeguard system works in a similar fashion, but with differing goals, and approaches, using a step function to help stop false positives, whereas Dinghy uses specialized ping messages \cite{Lifeguard}.
 
-In order to get an idea of message latency we average the elapsed time between the last $P$ messages received, we call the \textit{average message latency}, or $t_{avg}$. The selection of $P$ in implementation is rather arbitrary, the larger, the more resistant the \textit{average message latency} is to extreme latencies. So $t_{P}$ is the $Pth$ elapsed time behind, and $t_{c}$ is the elapsed time between the two most recent messages.
+Originally, Dinghy was being designed to assess network latency on a node per node basis, each being allowed to alter their own timeout as they saw fit. This however challenges Raft’s guarantee of progress, as it creates the potential for more frequent election splits, as well as promoting the asymmetric nature of the network. With some revisions, we were able to slightly adjust our original idea to ensure Raft’s original guarantees. Dinghy functions as follows:
 
-$$
-t_{avg} = \frac{t_{P}+...+t_{c}}{P}
-$$
+\[\delta: C \mapsto \mathbb{Z}\\\]
+\[A=\{n \in C: n \text{ is returning heartbeat messages}\}\\\]
+\[T_{a}=\frac{\sum{x \in A}}{\left|A\right|}\\\]
 
-Given that the \textit{heartbeat interval} of a node is one tenth of the \textit{heartbeat timeout}, we then, every few milliseconds, update the \textit{heartbeat timeout} to $20*t_{avg} + 10$ ms.
+Now are new heartbeat timeout becomes the product of some \textit{Dinghy Constant} $D_{k}$, and $T_{a}$. In our testing we used a constant of $20$.
+
+\[D_{k}T_{a}\]
+
+This revised timeout is calculated every time a new leader node is elected, and piggybacks off of the AppendEntries RPC, adding a reviseTimeout property that tells all follower nodes to update their heartbeat timeout to the agreed upon duration.
