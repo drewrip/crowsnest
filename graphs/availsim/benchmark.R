@@ -5,7 +5,7 @@ loadfonts()
 bench <- read.csv("/home/drew/go/src/github.com/drewrip/dinghy/data/availsim/benchmark.csv")
 print(bench)
 ggplot(bench, aes(y=time, x=size)) +
-  ggtitle("Number of Nodes in a Cluster vs. Avg. Time to Complete Test")+
+  ggtitle("Benchmark of 100 Consecutive Write-Read Operations (n=400)")+
   geom_line(size=.75) +
   xlab("Number of Nodes in Cluster") + 
   ylab("Avg. Time to Complete Test")+

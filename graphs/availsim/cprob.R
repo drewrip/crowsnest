@@ -5,7 +5,7 @@ cprob <- read.csv("/home/drew/go/src/github.com/drewrip/dinghy/stats/cprob.csv")
 print(cprob)
 ggplot() +
   geom_line(data=cprob, aes(y=prob, x=size), color="#0072B2", size=1)+
-  ggtitle("Number of Nodes in Cluster vs. Probability of Achieving Consensus (25% Fail Rate)")+
+  ggtitle("Probability of Achieving Consensus Given a 25% Node Fail Rate")+
   xlab("Number of Nodes in Cluster") + 
   ylab("Frequency")+
   #geom_smooth(method="lm", se=FALSE, size=.75)+
